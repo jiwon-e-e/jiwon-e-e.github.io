@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeQuick Korea · 머신러닝 기반 한국 지역 최적화 전리층 보정 모델 — 권지원</title>
+    <meta name="description" content="Galileo NeQuick Global 대비 RMSE −51.1% 달성한 한국 지역 최적화 전리층 보정 ML 파이프라인." />
+    <link rel="stylesheet" href="../css/portfolio.css" />
+</head>
+<body>
+
+<header class="nav">
+    <div class="nav-inner">
+        <a class="nav-brand" href="../index.html"><span class="dot"></span>Kwon Jiwon</a>
+        <ul class="nav-menu">
+            <li><a href="../index.html#projects">← Projects</a></li>
+        </ul>
+    </div>
+</header>
+
+<main class="project-detail">
+
+    <!-- Cover + 개요 -->
+    <section class="slide cover">
+        <div class="slide-inner">
+            <a href="../index.html#projects" class="detail-back">← Back to Projects</a>
+            <p class="cover-eyebrow">04 · Capstone Design · Machine Learning · GNSS</p>
+            <h1 class="cover-title">NeQuick Korea</h1>
+            <p class="cover-sub">
+                머신러닝 기반 한국 지역 최적화 전리층 보정 모델.
+                태양활동 · 위치 · 시간 정보만으로 Az를 추론해 <strong style="color:var(--text);">외산 위성 의존 없이 한반도 전역에서 실시간 전리층 보정</strong>을 수행합니다.
+            </p>
+
+            <!-- 성과 하이라이트 -->
+            <div class="metric-grid" style="margin-top:0; margin-bottom:32px;">
+                <div class="metric">
+                    <div class="k">RMSE</div>
+                    <div class="v">5.93 TECU</div>
+                    <div class="delta pos">12.14 → 5.93 (−51.1%)</div>
+                </div>
+                <div class="metric">
+                    <div class="k">MAE</div>
+                    <div class="v">4.29 TECU</div>
+                    <div class="delta pos">9.05 → 4.29 (−52.6%)</div>
+                </div>
+                <div class="metric">
+                    <div class="k">1 − MAPE</div>
+                    <div class="v">89%</div>
+                    <div class="delta pos">76% → 89% (+13%p)</div>
+                </div>
+            </div>
+
+            <table class="info-table">
+                <tr><th>기간</th><td>16주 · 2025.03 — 2025.06</td></tr>
+                <tr><th>팀</th><td>항공우주공학부 학부생 5인 · '오늘의 우주날씨는'</td></tr>
+                <tr><th>지도교수</th><td>방유진 교수님</td></tr>
+                <tr><th>역할</th><td>
+                    <ul>
+                        <li>Az 파라미터 최적화 자동화 (전국 23개 관측소)</li>
+                        <li>vTEC 산출 자동화</li>
+                        <li>ML Az 예측 모델 (feature 설계 · 스케일링 · 학습 · 튜닝)</li>
+                        <li>NeQuick 엔진 재주입 통합</li>
+                    </ul>
+                </td></tr>
+                <tr><th>배포</th><td>실시간 시뮬레이션 인터페이스 <span class="placeholder">https://capstone-e75e2.web.app</span></td></tr>
+                <tr><th>Links</th><td><span class="placeholder">GitHub</span></td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 01 · 프로젝트 배경 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">01 · 프로젝트 배경</span>
+            <h2 class="slide-title">왜 이 연구가 필요한가.</h2>
+
+            <p style="font-size:16px; color:var(--text-muted); line-height:1.75; max-width:820px; margin-bottom:16px;">
+                GPS 신호는 전리층(Ionosphere)을 통과하며 전자 밀도에 비례한 지연(Ionospheric Delay)이 발생합니다.
+                이 지연은 GNSS 측위 오차의 <strong style="color:var(--text);">40~60%</strong>를 차지하는 가장 큰 오차 요인이며,
+                한국형 위성항법시스템(KPS)을 자립적으로 운영하려면 한국 지역 특성에 맞게 이 지연을 보정할 수 있는 모델이 반드시 필요합니다.
+            </p>
+            <p style="font-size:16px; color:var(--text-muted); line-height:1.75; max-width:820px; margin-bottom:40px;">
+                국제적으로 널리 쓰이는 보정 모델은 유럽 Galileo 위성이 방송하는 <strong style="color:var(--text);">NeQuick Global 모델</strong>이지만,
+                한국과 같은 중위도 지역의 계절성·태양활동 영향을 충분히 반영하지 못한다는 한계가 보고되어 왔습니다.
+            </p>
+
+            <h3 style="font-size:20px; font-weight:700; margin-bottom:20px; letter-spacing:-0.01em;">기존 접근의 두 가지 본질적 제약</h3>
+            <table class="info-table" style="margin-bottom:40px;">
+                <tr><th>외산 위성 의존성</th><td>Az를 산출하려면 결국 Galileo의 a₀, a₁, a₂ 파라미터를 받아야 함. KPS 자립이라는 목표와 정면 충돌.</td></tr>
+                <tr><th>실시간성 부재</th><td>매번 당일 측정 데이터로 최적화를 다시 돌려야 했기에, 실시간 시뮬레이션이라기보다 사후 분석에 가까움.</td></tr>
+            </table>
+
+            <div class="pns-block" style="border-left-color: var(--accent);">
+                <div class="pns-row" style="border-top:none; padding-top:0;">
+                    <span class="label" style="color:var(--text);">Core Idea</span>
+                    <div class="content"><strong>태양활동 지수와 위치·시간 정보만으로 Az 값을 추론하는 머신러닝 모델을 학습시킨다.</strong> ML이 충분한 정확도로 Az를 추론할 수 있다면, Galileo 의존 없이 한국 지역에서 독립적으로 운용 가능한 전리층 보정 체계를 구축할 수 있다.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 02 · 시스템 아키텍처 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">02 · 시스템 아키텍처</span>
+            <h2 class="slide-title">4단계 파이프라인.</h2>
+
+            <ol style="font-size:16px; color:var(--text); line-height:1.85; max-width:820px; margin-bottom:32px; padding-left:20px;">
+                <li><strong>데이터 수집·전처리</strong> — 2020~2025년 한국 지역의 GIMs vTEC, Estimate vTEC, NeQuick G Az init 데이터 수집</li>
+                <li><strong>Az 최적화</strong> — Nelder-Mead Simplex 알고리즘으로 실측 TEC에 가장 가까운 Az 값 역산</li>
+                <li><strong>ML 모델 학습</strong> — F10.7, SSN, grid_point, UT를 feature로 LightGBM 학습</li>
+                <li><strong>추론·시뮬레이션</strong> — 학습된 모델이 추론한 Az를 NeQuick 엔진에 주입해 TEC 예측</li>
+            </ol>
+
+            <div class="placeholder" style="display:block; padding:80px 40px; text-align:center; margin-bottom:16px;">
+                [ 데이터 → Az 최적화 → ML 학습 3단계 파이프라인 다이어그램 자리 ]
+            </div>
+            <div class="placeholder" style="display:block; padding:80px 40px; text-align:center; margin-bottom:24px;">
+                [ 연구개발 방법론 전체 흐름 (5단계 + 기술 영역별 접근법) 자리 ]
+            </div>
+
+            <div class="pns-block" style="background: var(--bg);">
+                <div class="pns-row" style="border-top:none; padding-top:0;">
+                    <span class="label">담당 영역</span>
+                    <div class="content">위 단계 중 <strong>② Az 최적화 자동화</strong>, <strong>③ ML 파이프라인 설계 및 학습</strong>, <strong>④ 추론 결과를 NeQuick 엔진에 재주입하는 통합</strong> 부분.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 · 핵심 기술 ① Az 최적화 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">03 · 핵심 기술 ①</span>
+            <h2 class="slide-title">Az 파라미터 최적화.</h2>
+
+            <div class="pns">
+                <div class="pns-block">
+                    <div class="pns-row">
+                        <span class="label">문제</span>
+                        <div class="content">
+                            NeQuick G의 Az 계산식은 <code>Az = a₀ + a₁·Modip + a₂·Modip²</code>. 처음에는 <strong>a₀, a₁, a₂ 세 파라미터를 모두 역산</strong>하려 했으나, 세 개의 독립적인 방정식을 정립하는 것 자체가 연구 범위를 벗어남.
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">전환</span>
+                        <div class="content">
+                            멘토링에서 결정적 피드백을 받고 접근을 바꿨습니다.
+                            "단일 변수로 환원할 수 있는 방법을 찾아보라." →
+                            <strong>특정 위치·시각의 Az 값 자체를 직접 역산</strong>하는 단일 변수 최적화로 문제를 좁힘. 잔차 함수 1개만 정의하면 됨.
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">해결</span>
+                        <div class="content">
+                            Az가 블랙박스 함수(NeQuick G 내부)를 통과해 TEC를 출력하므로 gradient 기반 최적화를 쓸 수 없어,
+                            <strong>Nelder-Mead Simplex</strong> 알고리즘 채택. 잔차 함수 f(Az)는 단봉(unimodal)으로 가정할 수 있어 simplex가 안정적으로 수렴.
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">구현 디테일</span>
+                        <div class="content">Python에서 NeQuick G 바이너리를 <code>subprocess</code>로 호출.
+                            <ul>
+                                <li><code>subprocess.run</code> 결과 stdout의 VTEC 파싱이 깨지는 버그 — 정규식으로 보강</li>
+                                <li><code>exec_cmd</code> 컬럼의 기존 a₀, a₁, a₂ 값을 제거하고 최적화 Az를 주입하는 전처리 추가</li>
+                                <li>nan 값과 공백 데이터로 인한 csv 포맷 오류 케이스 핸들링</li>
+                                <li>최적화 코드와 NeQuick 재실행·결과 저장 코드를 하나의 파이프라인으로 병합해 I/O 오버헤드 제거</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
+                    [ Nelder-Mead Simplex 알고리즘 도식 + Az 값 비선형성 3D 곡면 (기존 vs 최적화) 자리 ]
+                </div>
+
+                <div class="pns-block">
+                    <div class="pns-row" style="border-top:none; padding-top:0;">
+                        <span class="label">결과</span>
+                        <div class="content"><div class="result">전국 23개 관측소 × 시각별 최적 Az 데이터셋 구축. 극소기(2020-11-20)와 극대기(2023-01-20) 모두에서 실측 기반 최적 Az가 위치에 따라 명확한 <strong>비선형성</strong>을 보임 — 2차 다항식으로는 표현 불가능한 굴곡. 이 관찰이 곧 ML 도입의 핵심 근거가 됨.</div></div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">설계 결정</span>
+                        <div class="content"><strong>문제를 단순화하는 것이 곧 문제를 푸는 것</strong>. 세 변수 역산을 포기하고 단일 변수 최적화로 환원한 것이 가장 결정적인 전환이었습니다.</div>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
+                    → <span class="placeholder">관련 문서 (tistory)</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 · 핵심 기술 ② ML 기반 Az 예측 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">04 · 핵심 기술 ②</span>
+            <h2 class="slide-title">ML 기반 Az 예측 모델.</h2>
+
+            <div class="pns">
+                <div class="pns-block">
+                    <div class="pns-row">
+                        <span class="label">Feature 설계</span>
+                        <div class="content">전리층 상태는 태양활동·시간·위치에 따라 변하므로 세 축을 모두 feature로 반영. UT 보정에는 <code>cos(2π × hour / 24)</code>를 써서 23시↔0시 연속성 확보. F10.7·SSN 등 스케일 차이가 큰 feature는 StandardScaler로 표준화.</div>
+                    </div>
+                </div>
+
+                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
+                    [ Feature 설계 표 (F10.7 · SSN · UT · UT 보정값 · grid_point · R-LLH / S-LLH) 자리 ]
+                </div>
+
+                <div class="pns-block">
+                    <div class="pns-row" style="border-top:none; padding-top:0;">
+                        <span class="label">모델 선정</span>
+                        <div class="content">
+                            안정적이고 하이퍼파라미터에 덜 민감한 <strong>Random Forest를 baseline</strong>으로 시작. 두 가지 한계 발견:
+                            <ul>
+                                <li>시계열·공간 연속성 반영 한계 — 트리 기반 독립 분기 구조라 grid_point·시간대 연속성 학습 안 됨</li>
+                                <li>학습 데이터 부족 시 과적합 — 초기 단일 시점 학습에서 R² 0.252까지 하락</li>
+                            </ul>
+                            데이터를 5년치(2020.01~2025.04)로 확장한 뒤 RF는 R² 0.718까지 회복. 이어서 XGBoost·LightGBM 비교.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
+                    [ 모델 비교 표 (RF / XGBoost / LightGBM — RMSE · MAE · 1-MAPE · R²) 자리 ]
+                </div>
+
+                <div class="pns-block">
+                    <div class="pns-row" style="border-top:none; padding-top:0;">
+                        <span class="label">채택</span>
+                        <div class="content"><strong>LightGBM</strong> — MAE 기준 최우수(RF 6.26 / XGBoost 6.65 / LightGBM <strong>5.76</strong>), 학습·추론 속도도 가장 빠름. XGBoost가 RF보다 약간 떨어진 건 leaf-wise growth가 이 데이터 분포 특성과 더 잘 맞은 것으로 추정.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">튜닝</span>
+                        <div class="content">LightGBM 채택 후 <strong>Optuna</strong>로 <code>n_estimators / learning_rate / max_depth / num_leaves / subsample / reg_alpha·lambda</code> 6개 파라미터 탐색 자동화. 동일 모델·동일 데이터에서 R² <strong>0.720 → 0.837</strong>, RMSE <strong>7.79 → 5.93</strong> TECU.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">설계 결정</span>
+                        <div class="content">"어떤 모델이 좋은가"보다 <strong>"이 데이터 분포에는 왜 이 모델이 더 맞는가"</strong>를 고민한 출발점. 스케일링된 분포로 학습했기에 추론 시점에도 반드시 학습 당시의 스케일러로 입력을 변환.</div>
+                    </div>
+                </div>
+
+                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
+                    [ Optuna 하이퍼파라미터 탐색 범위 표 + 튜닝 전/후 성능 비교 표 자리 ]
+                </div>
+                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
+                    → <span class="placeholder">관련 문서 (tistory)</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 · 최종 성과 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">05 · 최종 성과</span>
+            <h2 class="slide-title">NeQuick Global 대비<br>정확도 큰 폭 개선.</h2>
+
+            <p style="font-size:15px; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:24px;">
+                테스트 구간: 2025.04.24 ~ 2025.04.30 (평균 SSN 133, F10.7 157 — 극대기 직후)
+            </p>
+
+            <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin-bottom:24px;">
+                [ 오차 지표 비교 (NeQuick Global vs NeQuick Korea) bar chart + 시계열 오차 산점도 자리 ]
+            </div>
+            <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin-bottom:24px;">
+                [ 실시간 시뮬레이션 인터페이스 스크린샷 + 모델 포지셔닝 (실시간성 × 정확도) 2D chart 자리 ]
+            </div>
+
+            <p style="font-size:16px; color:var(--text); line-height:1.75; max-width:820px;">
+                vTEC 분포 시각화에서 NeQuick Korea의 예측값이 GIMs 실측값에 훨씬 가깝게 분포함을 확인.
+                GIMs 대비 오차 맵에서 NeQuick Global은 한반도 전역에 ±5 TECU 수준의 색상 편차가 보이는 반면,
+                NeQuick Korea는 거의 0에 가까운 균일한 분포.
+                <strong style="color:var(--text);">기존 모델 대비 NeQuick Korea는 Global의 실시간성과 GIMs의 정확도 사이를 메우는 위치</strong>에 자리 잡음.
+            </p>
+        </div>
+    </section>
+
+    <!-- 06 · 한계 + 회고 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">06 · 한계와 회고</span>
+            <h2 class="slide-title">문제를 단순화하는 것이<br>곧 문제를 푸는 것.</h2>
+
+            <table class="info-table" style="margin-bottom:32px;">
+                <tr><th>단기 과적합 가능성</th><td>학습은 5년치(2020.01~2025.04.23)지만 테스트는 1주일만으로 검증. 태양활동 11년 주기의 일부만 본 셈이라 다음 주기 진입 시 성능 변화는 미검증.</td></tr>
+                <tr><th>이중주파수 직접 검증 부재</th><td>GIMs를 ground truth로 평가했으나 GIMs 자체도 grid point 보간값이라 완벽한 실측은 아님. 3D 포지셔닝 결과 또는 독립적 정량 비교가 추후 필요.</td></tr>
+                <tr><th>DCB 보정 적용 범위</th><td>멘토 피드백을 반영해 DCB(Differential Code Bias) 보정을 부분 적용했으나, 더 정밀한 그리드 기반 DCB 평가는 시간 제약상 완수하지 못함.</td></tr>
+            </table>
+
+            <p style="font-size:16px; color:var(--text); line-height:1.85; max-width:820px;">
+                a₀·a₁·a₂ 세 변수를 한꺼번에 학습시키려다 멘토링에서 차원을 줄이는 방향으로 접근을 바꾼 게 가장 결정적인 전환점이었습니다.
+                RF → XGBoost → LightGBM 비교 과정도 좋은 학습이었고, 단순히 모델을 갈아끼우는 게 아니라 leaf-wise growth가 이 데이터의 어떤 특성에 잘 맞는지를 설명하려 노력하면서 <strong>모델 선정의 사고방식이 바뀌었습니다.</strong>
+            </p>
+        </div>
+    </section>
+
+    <!-- Prev / Next -->
+    <div class="container">
+        <nav class="slide-nav">
+            <a href="pay-system.html">
+                <div class="dir">← Prev</div>
+                <div class="name">pay-system</div>
+            </a>
+            <a href="../index.html#projects" class="next">
+                <div class="dir">Back →</div>
+                <div class="name">모든 프로젝트</div>
+            </a>
+        </nav>
+    </div>
+
+</main>
+
+<footer class="footer">© 2026 Kwon Jiwon</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

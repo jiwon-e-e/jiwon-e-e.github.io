@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ForPets · 반려동물 위탁/시터 매칭 백엔드 — 권지원</title>
+    <meta name="description" content="Redisson 분산 락 + 낙관락 기반의 반려동물 위탁/시터 매칭 플랫폼 백엔드." />
+    <link rel="stylesheet" href="../css/portfolio.css" />
+</head>
+<body>
+
+<header class="nav">
+    <div class="nav-inner">
+        <a class="nav-brand" href="../index.html"><span class="dot"></span>Kwon Jiwon</a>
+        <ul class="nav-menu">
+            <li><a href="../index.html#projects">← Projects</a></li>
+        </ul>
+    </div>
+</header>
+
+<main class="project-detail">
+
+    <!-- Cover + 개요 -->
+    <section class="slide cover">
+        <div class="slide-inner">
+            <a href="../index.html#projects" class="detail-back">← Back to Projects</a>
+            <p class="cover-eyebrow">01 · Backend Portfolio</p>
+            <h1 class="cover-title">ForPets</h1>
+            <p class="cover-sub">
+                보호자와 시터를 양방향으로 매칭하는 반려동물 돌봄 플랫폼.
+                분산 락 기반 동시성 제어와 멀티 인스턴스 안정성이 핵심 과제.
+            </p>
+
+            <table class="info-table">
+                <tr><th>기간</th><td>6주 · 2026.04 — 2026.06</td></tr>
+                <tr><th>팀</th><td>백엔드 6명</td></tr>
+                <tr><th>역할</th><td>
+                    <ul>
+                        <li>프로필 · 반려동물 · 시터 · 예약 · 관리자 도메인 설계</li>
+                        <li>예약 · 결제 동시성 제어 (Redisson 분산 락 + 낙관락 + AOP)</li>
+                        <li>만료 / 자동승인 Scheduler (ShedLock)</li>
+                        <li>커스텀 <code>@TrackExecutionTime</code> AOP로 락·트랜잭션·API 응답 시간 관측</li>
+                        <li>k6 부하 테스트 시나리오 설계 (4가지 락 전략 비교)</li>
+                    </ul>
+                </td></tr>
+                <tr><th>Links</th><td>
+                    <a href="#" style="border-bottom:1px solid var(--border-strong);">GitHub</a> ·
+                    <span class="placeholder">배포 URL</span>
+                </td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 서비스 소개 + 기술 스택 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">01 · 서비스 소개</span>
+            <h2 class="slide-title">단방향이 아닌,<br>양방향 매칭 플로우.</h2>
+
+            <p style="font-size:16px; color:var(--text-muted); line-height:1.75; max-width:820px; margin-bottom:32px;">
+                일반 매칭 서비스와 달리 <strong style="color:var(--text);">보호자 → 시터(정방향)</strong>와
+                <strong style="color:var(--text);">시터 → 보호자(역방향)</strong> 두 흐름을 모두 지원.
+                두 플로우가 같은 시간 슬롯(TimeSlot)을 두고 경쟁하기 때문에 <strong style="color:var(--text);">동시성 제어가 핵심 과제</strong>였습니다.
+            </p>
+
+            <table class="info-table" style="margin-bottom:56px;">
+                <tr><th>정방향 매칭</th><td><code>CareRequest</code> — 보호자가 특정 시터에게 직접 돌봄 요청</td></tr>
+                <tr><th>역방향 매칭</th><td><code>Proposal</code> — 시터가 보호자의 게시글(Post)에 먼저 제안</td></tr>
+                <tr><th>공통 자원</th><td><code>TimeSlot</code> — 두 플로우가 경쟁하는 시간 슬롯</td></tr>
+                <tr><th>확정 결과</th><td><code>Reservation</code> — 매칭 확정 후 생성되는 예약</td></tr>
+            </table>
+
+            <h3 style="font-size:20px; font-weight:700; margin-bottom:20px; letter-spacing:-0.01em;">기술 스택</h3>
+            <div class="stack-grid">
+                <div class="stack-item"><span class="k">Language</span><span class="v">Java 21</span></div>
+                <div class="stack-item"><span class="k">Framework</span><span class="v">Spring Boot 3.5</span></div>
+                <div class="stack-item"><span class="k">ORM / Query</span><span class="v">Spring Data JPA · QueryDSL 5.1</span></div>
+                <div class="stack-item"><span class="k">Database</span><span class="v">MySQL 8</span></div>
+                <div class="stack-item"><span class="k">Cache / Lock</span><span class="v">Redis · Redisson 3.27 · ShedLock 5.16</span></div>
+                <div class="stack-item"><span class="k">Payment</span><span class="v">PortOne (KG이니시스)</span></div>
+                <div class="stack-item"><span class="k">Monitoring</span><span class="v">Prometheus · Grafana · Micrometer</span></div>
+                <div class="stack-item"><span class="k">Test</span><span class="v">JUnit 5 · Mockito · k6</span></div>
+                <div class="stack-item"><span class="k">Infra</span><span class="v">Docker · AWS EC2 × 2 · ALB</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 시스템 아키텍처 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">02 · 시스템 아키텍처</span>
+            <h2 class="slide-title">EC2 × 2 · ALB 기반<br>Blue/Green 배포 구조.</h2>
+
+            <div class="placeholder" style="display:block; padding:80px 40px; text-align:center; margin-bottom:24px;">
+                [ 아키텍처 다이어그램 자리 ]
+            </div>
+
+            <p style="font-size:16px; color:var(--text-muted); line-height:1.75; max-width:820px;">
+                EC2 두 대를 ALB로 묶은 멀티 인스턴스 구성. 단일 인스턴스 락(<code>synchronized</code>, <code>ReentrantLock</code>)으로는
+                동시성 제어가 불가능하고 스케줄러도 양쪽 인스턴스에서 동시에 실행될 위험이 있어,
+                <strong style="color:var(--text);">Redisson 분산 락 + ShedLock</strong> 도입이 백엔드 설계의 출발점이었습니다.
+            </p>
+        </div>
+    </section>
+
+    <!-- 담당 도메인 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">03 · 담당 도메인</span>
+            <h2 class="slide-title">양방향 매칭 도메인 설계.</h2>
+
+            <table class="info-table">
+                <tr><th>Post</th><td>보호자가 올리는 돌봄 요청 게시글</td></tr>
+                <tr><th>CareRequest</th><td>보호자가 특정 시터에게 직접 돌봄을 요청 (정방향)</td></tr>
+                <tr><th>Proposal</th><td>시터가 보호자의 게시글에 돌봄을 제안 (역방향)</td></tr>
+                <tr><th>Reservation</th><td>매칭 확정 후 생성되는 예약</td></tr>
+                <tr><th>PetSnapshot · TimeSlotInfo</th><td>매칭 시점에 <code>@Embeddable</code>로 박제 — 원본이 바뀌어도 과거 예약 정합성 유지</td></tr>
+                <tr><th>HasTimeSlotInfo</th><td>Post · CareRequest · Reservation이 공통으로 가진 시간 슬롯을 다형적으로 충돌 검사</td></tr>
+                <tr><th>ID-only 참조</th><td><code>@SQLRestriction</code> 기반 soft delete + ID-only 참조로 결합도 최소화</td></tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- 도전 1: Lock/Transaction 순서 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">04.1 · 기술적 도전</span>
+            <h2 class="slide-title">Lock과 Transaction의 순서 문제.</h2>
+
+            <div class="pns">
+                <div class="pns-block">
+                    <div class="pns-row">
+                        <span class="label">문제</span>
+                        <div class="content">동일 Reservation에 <code>confirm / cancel / webhook</code>이 동시 진입 시 Payment 상태가 중복 갱신.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">원인</span>
+                        <div class="content">Lock이 Transaction <em>안쪽</em>에 걸려 수명이 역전 → 커밋 전에 락이 해제되면서 짧은 구간에 다른 스레드가 같은 데이터에 접근 가능. 락의 의미가 사실상 사라짐.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">해결</span>
+                        <div class="content">
+                            <ol>
+                                <li>Lock이 Transaction을 <strong>감싸도록</strong> 구조 리팩토링 (<code>@Order(HIGHEST_PRECEDENCE)</code>로 <code>@Transactional</code>보다 바깥 보장)</li>
+                                <li><code>@DistributedLock</code> AOP + Redisson 추상화, SpEL 동적 키 적용</li>
+                                <li>webhook처럼 파라미터에 reservationId가 없는 케이스는 <code>LockService(Supplier)</code>로 선조회 후 락</li>
+                                <li>락 통과 후 stale read/write 방어를 위해 Payment · ReservationPayment에 <code>@Version</code> 낙관락 추가</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">결과</span>
+                        <div class="content"><div class="result">예약 확정·취소·결제 콜백 동시 발생 시 상태 중복 처리를 구조적으로 차단. 회귀 방지 통합 테스트 확보.</div></div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">설계 결정</span>
+                        <div class="content">분산 락은 <strong>트랜잭션 바깥</strong>에 두는 것이 원칙. AOP Order를 명시적으로 지정하지 않으면 <code>@Transactional</code>보다 안쪽에 걸릴 수 있다는 걸 체감했습니다.</div>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
+                    → <span class="placeholder">관련 문서 (tistory)</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 도전 2: 4가지 락 전략 비교 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">04.2 · 기술적 도전</span>
+            <h2 class="slide-title">"왜 분산 락을 써야 하는지"를<br>데이터로 설명하기.</h2>
+
+            <p style="font-size:16px; color:var(--text-muted); line-height:1.75; max-width:820px; margin-bottom:24px;">
+                네 가지 락 전략(NoLock / Optimistic / Pessimistic / Distributed)을 직접 구현하고 k6 부하 테스트로 동일 조건에서 비교.
+            </p>
+
+            <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin-bottom:32px;">
+                [ 4가지 락 전략 비교 차트/표 자리 ]
+            </div>
+
+            <div class="pns">
+                <div class="pns-block">
+                    <div class="pns-row">
+                        <span class="label">핵심 관찰</span>
+                        <div class="content">
+                            <strong>HikariCP Pending Connection.</strong> 임계 VU에서 Pessimistic Lock은 pending 119건까지 쌓여 커넥션 풀 고갈 위험에 노출.
+                            Redisson은 동일 조건에서 <code>waitTime</code> 3초가 초과되면 DB 커넥션을 잡지도 않고 409를 즉시 반환 (fail-fast).
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">설계 결정</span>
+                        <div class="content">동시성 제어는 정확성의 문제이기도 하지만, 결국 <strong>어떤 자원을 보호할지의 문제</strong>. 정확성만 놓고 보면 Pessimistic도 통과하지만, DB 커넥션 보호까지 고려하면 Distributed가 유일한 선택.</div>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
+                    → <span class="placeholder">관련 문서 (tistory)</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 도전 3: PG 부분환불 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">04.3 · 기술적 도전</span>
+            <h2 class="slide-title">PG 부분환불 미지원<br>→ Settlement 구조 분리로 우회.</h2>
+
+            <div class="pns">
+                <div class="pns-block">
+                    <div class="pns-row">
+                        <span class="label">문제</span>
+                        <div class="content">예약 취소 시 위약금을 제외한 금액만 환불해야 하는데, PortOne(KG이니시스) 부분환불 API 호출이 실패 (<code>pgCode=500503</code>).</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">원인</span>
+                        <div class="content">PortOne(KG이니시스)가 부분환불을 지원하지 않음 → PG 레벨에서는 해결 불가로 판단.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">해결</span>
+                        <div class="content">
+                            <ol>
+                                <li>PG 호출로 푸는 방향을 포기, <strong>정산(Settlement) 구조 변경</strong>으로 우회하기로 결정</li>
+                                <li>위약금을 제외한 금액을 별도 Settlement로 생성</li>
+                                <li><code>SettlementType</code> enum 확장 → 부분환불 시 정산 2건(환불분 / 정산분)으로 분리</li>
+                                <li><code>PaymentErrorCode</code> 신설로 외부 PG 실패 분기를 표준화</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">결과</span>
+                        <div class="content"><div class="result">부분환불 시나리오 실패 케이스 0건.</div></div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">설계 결정</span>
+                        <div class="content">외부 시스템 한계를 마주쳤을 때 <strong>PG를 바꾸는 대신 도메인 모델로 우회</strong>. 결제 이력과 정산 이력을 분리해두었기에 가능했던 선택.</div>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
+                    → <span class="placeholder">관련 문서 (tistory)</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 도전 4: 스케줄러 중복 실행 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">04.4 · 기술적 도전</span>
+            <h2 class="slide-title">멀티 인스턴스 스케줄러<br>중복 실행 방지 — ShedLock.</h2>
+
+            <div class="pns">
+                <div class="pns-block">
+                    <div class="pns-row">
+                        <span class="label">문제</span>
+                        <div class="content">EC2 두 대에서 동일 스케줄러가 양쪽에서 실행되면서 같은 레코드를 두 번 처리.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">해결</span>
+                        <div class="content">기존 스케줄러에 <code>@SchedulerLock</code> 부착만으로 다중 인스턴스 단일 실행 보장. Quartz 클러스터링 대신 ShedLock(Redis provider)을 선택한 이유는 <strong>기존 코드 변경 최소화</strong>. 스케줄러(잡 단위) + Redis SETNX(엔티티 단위) 두 층으로 락을 걸었습니다.</div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">적용 스케줄러</span>
+                        <div class="content">
+                            <ul>
+                                <li>Post / CareRequest 만료 처리</li>
+                                <li><code>UNAVOIDABLE</code> 사유 취소 자동 승인</li>
+                                <li>Reservation 만료 처리</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="pns-row">
+                        <span class="label">설계 결정</span>
+                        <div class="content">배치 시스템 도입 없이 기존 <code>@Scheduled</code> 위에 <strong>어노테이션 하나로 확장</strong>. "코드 최소 변경"이 우선 순위였고 ShedLock이 그 조건에 맞았습니다.</div>
+                    </div>
+                </div>
+                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
+                    → <span class="placeholder">관련 문서 (tistory)</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 짧은 회고 -->
+    <section class="slide">
+        <div class="slide-inner">
+            <span class="slide-num">05 · 회고</span>
+            <h2 class="slide-title">기술 선택은<br>데이터로 남긴다.</h2>
+            <p style="font-size:17px; color:var(--text); line-height:1.85; max-width:760px;">
+                네 가지 락 전략을 직접 만들고 비교해보고 나서야 "동시성 제어는 결국 자원 보호의 문제"라는 말이 와닿았습니다.
+                다음 프로젝트에서도 기술을 도입할 때 이런 비교 데이터를 먼저 남기려 합니다.
+            </p>
+        </div>
+    </section>
+
+    <!-- Prev / Next -->
+    <div class="container">
+        <nav class="slide-nav">
+            <a href="../index.html#projects">
+                <div class="dir">← Back</div>
+                <div class="name">모든 프로젝트</div>
+            </a>
+            <a href="tixy.html" class="next">
+                <div class="dir">Next →</div>
+                <div class="name">tixy</div>
+            </a>
+        </nav>
+    </div>
+
+</main>
+
+<footer class="footer">© 2026 Kwon Jiwon</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
