@@ -62,8 +62,9 @@
                         <li>NeQuick 엔진 재주입 통합</li>
                     </ul>
                 </td></tr>
-                <tr><th>배포</th><td>실시간 시뮬레이션 인터페이스 <span class="placeholder">https://capstone-e75e2.web.app</span></td></tr>
-                <tr><th>Links</th><td><span class="placeholder">GitHub</span></td></tr>
+                <tr><th>Links</th><td>
+                    <a href="https://capstone-e75e2.web.app" target="_blank" rel="noopener" style="border-bottom:1px solid var(--border-strong);">실시간 시뮬레이션 인터페이스 ↗</a>
+                </td></tr>
             </table>
         </div>
     </section>
@@ -112,12 +113,9 @@
                 <li><strong>추론·시뮬레이션</strong> — 학습된 모델이 추론한 Az를 NeQuick 엔진에 주입해 TEC 예측</li>
             </ol>
 
-            <div class="placeholder" style="display:block; padding:80px 40px; text-align:center; margin-bottom:16px;">
-                [ 데이터 → Az 최적화 → ML 학습 3단계 파이프라인 다이어그램 자리 ]
-            </div>
-            <div class="placeholder" style="display:block; padding:80px 40px; text-align:center; margin-bottom:24px;">
-                [ 연구개발 방법론 전체 흐름 (5단계 + 기술 영역별 접근법) 자리 ]
-            </div>
+            <figure style="margin:0 0 24px; padding:24px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <img src="../image/nequick-pipeline.png" alt="파이프라인 3단계 — 데이터 수집·전처리(GIMs vTEC, Estimate vTEC, NeQuick Az init) → Az 최적화 → LightGBM 학습" style="width:100%; height:auto; display:block;" />
+            </figure>
 
             <div class="pns-block" style="background: var(--bg);">
                 <div class="pns-row" style="border-top:none; padding-top:0;">
@@ -170,9 +168,12 @@
                     </div>
                 </div>
 
-                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
-                    [ Nelder-Mead Simplex 알고리즘 도식 + Az 값 비선형성 3D 곡면 (기존 vs 최적화) 자리 ]
-                </div>
+                <figure style="margin:16px 0; padding:24px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                    <img src="../image/nequick-az-surface.png" alt="Az 값 3D 곡면 비교 — 좌: 기존 NeQuick Global Az (149.5~151.5의 좁은 범위, 거의 평면), 우: 실측 기반 최적화 Az (~160~195, 명확한 비선형 굴곡)" style="width:100%; height:auto; display:block;" />
+                    <figcaption style="margin-top:12px; font-size:12px; color:var(--text-subtle); font-family:var(--font-mono); text-align:center;">
+                        좌: NeQuick Global 기본 Az (거의 평면) → 우: 실측 기반 최적화 Az (명확한 비선형)
+                    </figcaption>
+                </figure>
 
                 <div class="pns-block">
                     <div class="pns-row" style="border-top:none; padding-top:0;">
@@ -184,9 +185,6 @@
                         <div class="content"><strong>문제를 단순화하는 것이 곧 문제를 푸는 것</strong>. 세 변수 역산을 포기하고 단일 변수 최적화로 환원한 것이 가장 결정적인 전환이었습니다.</div>
                     </div>
                 </div>
-                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
-                    → <span class="placeholder">관련 문서 (tistory)</span>
-                </p>
             </div>
         </div>
     </section>
@@ -205,9 +203,16 @@
                     </div>
                 </div>
 
-                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
-                    [ Feature 설계 표 (F10.7 · SSN · UT · UT 보정값 · grid_point · R-LLH / S-LLH) 자리 ]
-                </div>
+                <figure style="margin:16px 0; padding:20px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                    <img src="../image/nequick-feature.png" alt="Feature 설계 표 — F10.7, SSN, UT, UT 보정값 cos(2π×hour/24), grid_point, R-LLH/S-LLH 각각의 설명과 사용 근거" style="width:100%; height:auto; display:block;" />
+                </figure>
+
+                <figure style="margin:16px 0 8px; padding:20px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                    <img src="../image/nequick-scaler.png" alt="StandardScaler 적용 전/후 — SSN·F10.7·Month·Rec_Lat·Az의 원본 값과 스케일링된 값 비교" style="width:100%; height:auto; display:block;" />
+                    <figcaption style="margin-top:10px; font-size:12px; color:var(--text-subtle); font-family:var(--font-mono); text-align:center;">
+                        StandardScaler 적용 전/후 — 스케일 차이가 큰 feature를 동일한 분포로 정규화
+                    </figcaption>
+                </figure>
 
                 <div class="pns-block">
                     <div class="pns-row" style="border-top:none; padding-top:0;">
@@ -223,9 +228,9 @@
                     </div>
                 </div>
 
-                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
-                    [ 모델 비교 표 (RF / XGBoost / LightGBM — RMSE · MAE · 1-MAPE · R²) 자리 ]
-                </div>
+                <figure style="margin:16px 0 8px; padding:20px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                    <img src="../image/nequick-ml-model-compare.png" alt="RF / XGBoost / LightGBM 성능 비교 — RMSE·MAE·1-MAPE·R². LightGBM이 MAE 5.76, R² 0.720으로 최우수" style="width:100%; height:auto; display:block;" />
+                </figure>
 
                 <div class="pns-block">
                     <div class="pns-row" style="border-top:none; padding-top:0;">
@@ -242,12 +247,6 @@
                     </div>
                 </div>
 
-                <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin:8px 0;">
-                    [ Optuna 하이퍼파라미터 탐색 범위 표 + 튜닝 전/후 성능 비교 표 자리 ]
-                </div>
-                <p style="font-size:13px; color:var(--text-subtle); margin-top:12px; font-family:var(--font-mono);">
-                    → <span class="placeholder">관련 문서 (tistory)</span>
-                </p>
             </div>
         </div>
     </section>
@@ -262,18 +261,29 @@
                 테스트 구간: 2025.04.24 ~ 2025.04.30 (평균 SSN 133, F10.7 157 — 극대기 직후)
             </p>
 
-            <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin-bottom:24px;">
-                [ 오차 지표 비교 (NeQuick Global vs NeQuick Korea) bar chart + 시계열 오차 산점도 자리 ]
-            </div>
-            <div class="placeholder" style="display:block; padding:60px 40px; text-align:center; margin-bottom:24px;">
-                [ 실시간 시뮬레이션 인터페이스 스크린샷 + 모델 포지셔닝 (실시간성 × 정확도) 2D chart 자리 ]
-            </div>
+            <h3 style="font-size:15px; font-weight:600; color:var(--text-muted); margin:0 0 12px;">시계열 오차 (GIMs 기준)</h3>
+            <figure style="margin:0 0 32px; padding:20px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <img src="../image/nequick-vtec-diff.png" alt="ML vs Init vTEC diff 산점도 — 파랑(ML−GIMs)은 0 근처 밀집, 빨강(Init−GIMs)은 ±20~40 범위로 넓게 분산" style="width:100%; height:auto; display:block;" />
+                <figcaption style="margin-top:10px; font-size:12px; color:var(--text-subtle); font-family:var(--font-mono); text-align:center;">
+                    파랑 (ML − GIMs) 0 근처 밀집 · 빨강 (Init − GIMs) ±20~40 분산
+                </figcaption>
+            </figure>
+
+            <h3 style="font-size:15px; font-weight:600; color:var(--text-muted); margin:0 0 12px;">실시간 시뮬레이션 인터페이스</h3>
+            <figure style="margin:0 0 32px; padding:20px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <img src="../image/nequick-simulation.png" alt="배포된 실시간 시뮬레이션 UI — 날짜/시각 선택으로 NeQuick Global / NeQuick Korea / GIMs vTEC 및 오차 맵을 한반도 위에 시각화" style="width:100%; height:auto; display:block;" />
+                <figcaption style="margin-top:10px; font-size:12px; color:var(--text-subtle); font-family:var(--font-mono); text-align:center;">
+                    NeQuick Global · NeQuick Korea · GIMs를 동일 시각에 나란히 비교 가능한 웹 인터페이스
+                </figcaption>
+            </figure>
+
+            <h3 style="font-size:15px; font-weight:600; color:var(--text-muted); margin:0 0 12px;">모델 포지셔닝</h3>
+            <figure style="margin:0 0 24px; padding:20px; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <img src="../image/nequick-model-compare.png" alt="4개 모델 비교표 — NeQuick Global / IGS GIMs / 개별 관측값 / NeQuick Korea, 정확도·측정 범위·실시간 사용성·사용 난이도·사용 방법 비교" style="width:100%; height:auto; display:block;" />
+            </figure>
 
             <p style="font-size:16px; color:var(--text); line-height:1.75; max-width:820px;">
-                vTEC 분포 시각화에서 NeQuick Korea의 예측값이 GIMs 실측값에 훨씬 가깝게 분포함을 확인.
-                GIMs 대비 오차 맵에서 NeQuick Global은 한반도 전역에 ±5 TECU 수준의 색상 편차가 보이는 반면,
-                NeQuick Korea는 거의 0에 가까운 균일한 분포.
-                <strong style="color:var(--text);">기존 모델 대비 NeQuick Korea는 Global의 실시간성과 GIMs의 정확도 사이를 메우는 위치</strong>에 자리 잡음.
+                <strong style="color:var(--text);">NeQuick Korea는 Global의 실시간성과 GIMs의 정확도 사이를 메우는 위치</strong>에 자리 잡음. 한반도 지역에서 언제·어디서든 사용 가능하면서도 GIMs 수준의 정확도에 근접한 유일한 옵션.
             </p>
         </div>
     </section>
@@ -282,7 +292,7 @@
     <section class="slide">
         <div class="slide-inner">
             <span class="slide-num">06 · 한계와 회고</span>
-            <h2 class="slide-title">문제를 단순화하는 것이<br>곧 문제를 푸는 것.</h2>
+            <h2 class="slide-title">한계와 배운 것.</h2>
 
             <table class="info-table" style="margin-bottom:32px;">
                 <tr><th>단기 과적합 가능성</th><td>학습은 5년치(2020.01~2025.04.23)지만 테스트는 1주일만으로 검증. 태양활동 11년 주기의 일부만 본 셈이라 다음 주기 진입 시 성능 변화는 미검증.</td></tr>
@@ -291,8 +301,7 @@
             </table>
 
             <p style="font-size:16px; color:var(--text); line-height:1.85; max-width:820px;">
-                a₀·a₁·a₂ 세 변수를 한꺼번에 학습시키려다 멘토링에서 차원을 줄이는 방향으로 접근을 바꾼 게 가장 결정적인 전환점이었습니다.
-                RF → XGBoost → LightGBM 비교 과정도 좋은 학습이었고, 단순히 모델을 갈아끼우는 게 아니라 leaf-wise growth가 이 데이터의 어떤 특성에 잘 맞는지를 설명하려 노력하면서 <strong>모델 선정의 사고방식이 바뀌었습니다.</strong>
+                RF → XGBoost → LightGBM 비교 과정에서 단순히 모델을 갈아끼우는 게 아니라 leaf-wise growth가 이 데이터의 어떤 특성에 잘 맞는지를 설명하려 노력했고, 그 과정에서 <strong>모델 선정의 사고방식이 바뀌었습니다.</strong>
             </p>
         </div>
     </section>
