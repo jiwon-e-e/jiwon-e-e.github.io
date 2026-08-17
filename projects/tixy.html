@@ -43,7 +43,13 @@
             <table class="info-table">
                 <tr><th>기간</th><td>8주 · 2026.03 — 2026.04</td></tr>
                 <tr><th>팀</th><td>백엔드 4명</td></tr>
-                <tr><th>역할</th><td>목록 조회 API 성능 최적화 — 인덱스 설계 · 캐시 전략(v1/v2/v3) · k6 부하 테스트 검증</td></tr>
+                <tr><th>역할</th><td>
+                    <ul>
+                        <li><strong>인덱스 + 캐싱</strong>으로 목록 조회 쿼리 성능 개선 (k6 부하 테스트 검증)</li>
+                        <li>복잡한 동적 쿼리를 위한 <strong>QueryDSL · jOOQ 비교 후 jOOQ 도입</strong></li>
+                        <li><strong>RedisTemplate 기반 Ranking 조회 시스템</strong> 구현</li>
+                    </ul>
+                </td></tr>
                 <tr><th>Links</th><td>
                     <a href="https://github.com/2GeoJiYe/tixy" target="_blank" rel="noopener" style="border-bottom:1px solid var(--border-strong);">GitHub ↗</a>
                 </td></tr>
@@ -109,12 +115,16 @@
 
             <div class="feature-list">
                 <div class="feature-item">
-                    <h4>인덱스 설계</h4>
-                    <p>4-Table JOIN 쿼리에 대한 인덱스 조합 비교 · EXPLAIN 분석.</p>
+                    <h4>인덱스 + 캐싱으로 목록 조회 쿼리 성능 개선</h4>
+                    <p>4-Table JOIN 쿼리에 인덱스 조합(EXPLAIN 분석)과 캐시(v1 DB / v2 Caffeine / v3 Redis)를 각각·함께 적용해 k6로 비교 검증.</p>
                 </div>
                 <div class="feature-item">
-                    <h4>캐싱 전략 비교</h4>
-                    <p>v1(DB) / v2(Caffeine) / v3(Redis) 세 버전을 같은 jOOQ 쿼리로 놓고 측정.</p>
+                    <h4>동적 쿼리 도구 선택</h4>
+                    <p>QueryDSL · jOOQ 비교 후, 조건 조합이 많고 SQL 근접 표현이 필요해 jOOQ 채택.</p>
+                </div>
+                <div class="feature-item">
+                    <h4>Ranking 조회 시스템</h4>
+                    <p>RedisTemplate 기반 Sorted Set으로 조회수·판매량 랭킹 조회 구현.</p>
                 </div>
             </div>
         </div>
@@ -149,6 +159,10 @@
                         <span class="label">배운 것</span>
                         <div class="content">단일 시나리오로 결론 내지 않기. 시나리오를 12개로 확장하니 평균은 개선(-40%)됐지만 <strong>p95는 +5% 악화</strong>되는 조건 조합도 있었음. 이후로는 <strong>여러 조건 조합을 함께 측정</strong>하는 걸 기본 절차로 삼았습니다.</div>
                     </div>
+                </div>
+                <div class="doc-links" style="margin-top:20px; font-size:13px; font-family:var(--font-mono); color:var(--text-subtle);">
+                    <span style="display:inline-block; padding:2px 8px; border:1px solid var(--border); border-radius:3px; margin-right:8px; font-size:11px; letter-spacing:0.05em;">TROUBLESHOOTING</span>
+                    <a href="https://kjw81024.tistory.com/83" target="_blank" rel="noopener" style="border-bottom:1px solid var(--border-strong);">jOOQ 도입</a>
                 </div>
             </div>
         </div>
@@ -253,6 +267,13 @@
                     <div class="v">93.1</div>
                     <div class="delta pos">16.9 → 93.1 (5.5×)</div>
                 </div>
+            </div>
+
+            <div class="doc-links" style="margin-top:32px; font-size:13px; font-family:var(--font-mono); color:var(--text-subtle);">
+                <span style="display:inline-block; padding:2px 8px; border:1px solid var(--border); border-radius:3px; margin-right:8px; font-size:11px; letter-spacing:0.05em;">TROUBLESHOOTING</span>
+                <a href="https://kjw81024.tistory.com/86" target="_blank" rel="noopener" style="border-bottom:1px solid var(--border-strong);">k6 부하 테스트</a>
+                ·
+                <a href="https://kjw81024.tistory.com/87" target="_blank" rel="noopener" style="border-bottom:1px solid var(--border-strong);">랭킹 시스템 구현 — StackOverflow 해결</a>
             </div>
         </div>
     </section>
