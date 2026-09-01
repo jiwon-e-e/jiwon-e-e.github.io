@@ -6,6 +6,7 @@
 (function () {
     "use strict";
 
+    // intellij 만료 테스트. . . ㅜㅜ
     // Nav border-on-scroll
     var nav = document.querySelector(".nav");
     if (nav) {
